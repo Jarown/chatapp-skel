@@ -134,7 +134,7 @@ _.extend(window.ChatApp.Connection.prototype, Backbone.Events, {
      */
     join : function(onSuccess) {
 
-        $.ajax(this.serverUri + 'join?nickName=' + this.nickName + '&email=' + this.email, { success: onSuccess });
+        $.ajax(this.serverUri + 'join?nickName=' + this.nickName + '&email=' + this.email, {success: onSuccess});
 
     },
 
@@ -181,7 +181,7 @@ _.extend(window.ChatApp.Connection.prototype, Backbone.Events, {
                     console.log('PART: ' + event.nickName);
                     this.userCollection.remove(
                         this.userCollection.find(
-                            function(item) { return item.get('nickName') === event.nickName; }
+                            function(item) {return item.get('nickName') === event.nickName;}
                         )
                     );
                     break;
@@ -242,17 +242,25 @@ window.ChatApp.MessageListView = Backbone.View.extend({
     
     initialize: function() {
         // bind the add event to addmessage function
-        this.collection.bind('add', _.bind(this.addmessage, this));
+        this.collection.bind('add', _.bind(this.addMessage, this));
     },
     
-    addmessage: function(messageModel){
-        var message  = messageModel.get('message');
+    addMessage: function(messageModel){
+        var gravatar = messageModel.get('gravatar');
         var nickName = messageModel.get('nickName');
         var dateTime = messageModel.get('dateTime');
-        var gravatar = messageModel.get('gravatar');
-        messageTxt = gravatar + nickName + message + dateTime;
-        $('.messages ul').append($('<li></li>').text(messageTxt));
-        console.log(messageModel.get('message'));
+        var message  = messageModel.get('message');
+        
+        //messageTxt = gravatar + nickName + message + dateTime;
+        // $('.messages ul').append($('<li></li>').text(messageTxt));
+        
+        var li = $('<li></li>');
+        li.append($("<img></img>").attr('id', 'theImg').attr('src', gravatar));
+        li.append($("<div></div>").attr('id', 'nickName').text(nickName));
+        li.append($("<div></div>").attr('id', 'dateTime').text(dateTime));
+        li.append($("<div></div>").attr('id', 'message').text(message));
+        
+        $('.messages ul').append(li);
     }
 });
 
@@ -274,6 +282,7 @@ window.ChatApp.MessageInputView = Backbone.View.extend({
 
     submit : function(evt) {
         this.options.connection.message(this.$('.sendmessage').val());
+        this.$('.sendmessage').val('');
         evt.preventDefault();
     }
 });
@@ -288,7 +297,22 @@ window.ChatApp.MessageInputView = Backbone.View.extend({
  * UserCollection
  */
 window.ChatApp.UserListView = Backbone.View.extend({
+    initialize: function() {
+        // bind the add event to addmessage function
+        this.collection.bind('add', _.bind(this.addUser, this));
+    },
+    
+    addUser : function(userModel) {
+        nickName = userModel.get('nickName');
+        gravatar = userModel.get('gravatar');
+        
+        var template = this.$('.template').clone();
 
+        template.find('.gravatar').attr('src', gravatar);
+        template.find('.nickName').text(nickName);
+        template.removeClass('template');
+        template.appendTo(this.el.find('ul'));                
+    }
 });
 
 /**
@@ -356,8 +380,7 @@ window.ChatApp.Application = Backbone.View.extend({
             self.nickName = userInfo.nickName;
             self.email = userInfo.email;
             self.initializeConnection();
-        });
-
+        });        
     },
 
     initializeConnection : function() {
@@ -390,6 +413,5 @@ window.ChatApp.Application = Backbone.View.extend({
 $(document).ready(function() {
 
     window.ChatApp.application = new ChatApp.Application;
-
 
 });
