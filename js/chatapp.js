@@ -300,18 +300,23 @@ window.ChatApp.UserListView = Backbone.View.extend({
     initialize: function() {
         // bind the add event to addmessage function
         this.collection.bind('add', _.bind(this.addUser, this));
+        this.collection.bind('remove', _.bind(this.removeUser, this));
     },
     
     addUser : function(userModel) {
         nickName = userModel.get('nickName');
         gravatar = userModel.get('gravatar');
         
-        var template = this.$('.template').clone();
+        var template = this.$('li.template').clone();
 
         template.find('.gravatar').attr('src', gravatar);
         template.find('.nickName').text(nickName);
         template.removeClass('template');
         template.appendTo(this.el.find('ul'));                
+    },
+    
+    removeUser : function(userModel) {
+         // todo
     }
 });
 

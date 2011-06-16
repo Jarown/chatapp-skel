@@ -70,7 +70,7 @@ html
   
   .userList ul li
   {
-    height: 40px;
+    height: 0px;
   }
 
   button 
